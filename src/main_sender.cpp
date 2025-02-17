@@ -6,8 +6,6 @@
 #include <LoRa.h>
 #include "definitions.h"
 #include "smartdelay.h"
-#include <WiFi.h>
-#include <PubSubClient.h>
 
 float lat, lon = 0;
 double alt, speed = 0;
@@ -24,16 +22,10 @@ TinyGPSPlus gps;
 extern void get_gps();
 extern void combine_packet(int id, float lat, float lon, double speed);
 extern void send_packet(String packet);
-extern void mqtt_callback(char* topic, byte* payload, unsigned int length);
-extern void connect_wifi();
-extern void connect_mqtt();
 
 String packet;
 
 Millis timer(1000);
-
-WiFiClient wifiClient;
-PubSubClient mqtt(MQTT_BROKER, 1883, wifiClient);
 
 void setup() {
     Serial.begin(115200);
@@ -43,14 +35,9 @@ void setup() {
         while(1);
     }
     Serial.println("Starting Lora");
-
-    connect_wifi();
-    connect_mqtt();
-    last_publish = 0;
 }
 
 void loop() {
-    // mqtt.loop();
     get_gps();
     if(timer) {
         combine_packet(id, lat, lon, alt);
@@ -86,32 +73,3 @@ void send_packet(String packet){
     LoRa.endPacket();
 }
 
-void connect_wifi() {
-    printf("WiFi MAC address is %s\n", WiFi.macAddress().c_str());
-    printf("Connecting to WiFi %s.\n", WIFI_SSID);
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    while (WiFi.status() != WL_CONNECTED) {
-        printf(".");
-        fflush(stdout);
-        delay(500);
-    }
-    printf("\nWiFi connected.\n");
-}
-
-void connect_mqtt() {
-    printf("Connecting to MQTT broker at %s.\n", MQTT_BROKER);
-    if (!mqtt.connect("", MQTT_USER, MQTT_PASS)) {
-        printf("Failed to connect to MQTT broker.\n");
-        for (;;) {} // wait here forever
-    }
-    mqtt.setCallback(mqtt_callback);
-
-    mqtt.subscribe(TOPIC_KU_BUS);
-
-    printf("MQTT broker connected.\n");
-}
-
-void mqtt_callback(char* topic, byte* payload, unsigned int length) {
-
-}
