@@ -75,8 +75,8 @@ void get_gps() {
 
 void combine_packet(int id, float lat, float lon, double speed) {
     packet += String((int)id) + ","
-           += String((float)lat) + ","
-           += String((float)lon) + ","
+           += String((float)lat, 6) + ","
+           += String((float)lon, 6) + ","
            += String((double)speed) + ",";
 }
 
