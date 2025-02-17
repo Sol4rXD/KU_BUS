@@ -55,6 +55,7 @@ void loop() {
     if(timer) {
         combine_packet(id, lat, lon, alt);
         send_packet(packet);
+        packet = "";
     }
 }
 
