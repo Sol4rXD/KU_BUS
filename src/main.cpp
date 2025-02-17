@@ -10,7 +10,7 @@
 #include <PubSubClient.h>
 
 float lat, lon = 0;
-double alt = 0;
+double alt, speed = 0;
 
 uint16_t counter = 0;
 uint16_t sat = 0;
@@ -22,7 +22,7 @@ SoftwareSerial GPS_SERIAL(18,17);
 TinyGPSPlus gps;
 
 extern void get_gps();
-extern void combine_packet(int id, float lat, float lon, float alt);
+extern void combine_packet(int id, float lat, float lon, double speed);
 extern void send_packet(String packet);
 extern void mqtt_callback(char* topic, byte* payload, unsigned int length);
 extern void connect_wifi();
@@ -39,12 +39,10 @@ void setup() {
     Serial.begin(115200);
     GPS_SERIAL.begin(GPS_SERIAL);
 
-
     if(!LoRa.begin(433E6)) {
         while(1);
     }
     Serial.println("Starting Lora");
-
 
     connect_wifi();
     connect_mqtt();
@@ -68,16 +66,17 @@ void get_gps() {
             lon = gps.location.lng();
             alt = gps.altitude.meters();
             sat = gps.satellites.value();
+            speed = gps.speed.kmph();
         }
     }
     combine_packet(id, lat, lon, alt);
 }
 
-void combine_packet(int id, float lat, float lon, float alt) {
+void combine_packet(int id, float lat, float lon, double speed) {
     packet += String((int)id) + ","
            += String((float)lat) + ","
            += String((float)lon) + ","
-           += String((float)alt) + ",";
+           += String((double)speed) + ",";
 }
 
 void send_packet(String packet){
