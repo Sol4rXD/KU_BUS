@@ -10,10 +10,8 @@
 float lat, lon = 0;
 double alt, speed = 0;
 
-uint16_t counter = 0;
+// uint16_t counter = 0;
 uint16_t sat = 0;
-
-uint32_t last_publish;
 
 SoftwareSerial GPS_SERIAL(18,17);
 
