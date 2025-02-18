@@ -16,11 +16,11 @@ void setup() {
 void loop() {
     int packetSize = LoRa.parsePacket();
     if (packetSize) {
-        digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-        delay(300);                       // wait for a second
-        digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-        delay(300);                       // wait for a second
-        // read packet
+        digitalWrite(LED_BUILTIN, HIGH);   
+        delay(300);                       
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(300);
+                               
         while (LoRa.available()) {
         Serial.println((char)LoRa.read());
         }
