@@ -92,7 +92,6 @@ void connect_mqtt() {
     while (!mqtt.connected()) {
         if (mqtt.connect("ESP32_Client", MQTT_USER, MQTT_PASS)) {
             Serial.println("MQTT broker connected.");
-            mqtt.subscribe(TOPIC_KU_BUS);
             mqtt.setCallback(mqtt_callback);
         } else {
             Serial.println("Failed to connect to MQTT broker. Retrying in 5s...");
