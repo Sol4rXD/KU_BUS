@@ -38,9 +38,9 @@ void setup() {
 void loop() {
     get_gps();
     if(timer) {
-        combine_packet(id, lat, lon, alt);
-        send_packet(packet);
         packet = "";
+        combine_packet(id, lat, lon, speed);
+        send_packet(packet);
     }
 }
 
@@ -55,7 +55,6 @@ void get_gps() {
             speed = gps.speed.kmph();
         }
     }
-    combine_packet(id, lat, lon, alt);
 }
 
 void combine_packet(int id, float lat, float lon, double speed) {
