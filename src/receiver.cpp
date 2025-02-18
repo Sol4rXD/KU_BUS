@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <LoRa.h>
-#include <definitions.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include "definitions.h"
 
 #define USE_DEBUG
 
@@ -14,10 +14,9 @@
 #endif
 
 WiFiClient wifiClient;
-PubSubClient mqtt(MQTT_BROKER, 1883, wifiClient);
-uint32_t last_publish;
+PubSubClient mqtt(wifiClient);
 
-String data;
+uint32_t last_publish;
 
 extern void mqtt_callback(char* topic, byte* payload, unsigned int length);
 extern void connect_wifi();
@@ -25,17 +24,28 @@ extern void connect_mqtt();
 
 void setup() {
     Serial.begin(115200);
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, LOW);
+
     if (!LoRa.begin(433E6)) {
-        Serial.println("Starting LoRa failed!");
-        while (1);
+        Serial.println("Starting LoRa failed! Restarting...");
+        delay(5000);
+        ESP.restart();
     }
 
     connect_wifi();
+    mqtt.setServer(MQTT_BROKER, 1883);
     connect_mqtt();
-    last_publish = 0;
+    last_publish = millis();
 }
 
 void loop() {
+    if (!mqtt.connected()) {
+        DEBUG("MQTT is not connected. Reconnecting...");
+        connect_mqtt();
+    }
+    mqtt.loop();  
+
     int packetSize = LoRa.parsePacket();
     if (packetSize) {
         digitalWrite(LED_BUILTIN, HIGH);
@@ -52,48 +62,51 @@ void loop() {
         if (mqtt.connected()) {
             mqtt.publish(TOPIC_KU_BUS, loraData.c_str()); 
             DEBUG("Published to MQTT: " + loraData);
-        } else {
-            DEBUG("MQTT is not connected. Reconnecting...");
-            connect_mqtt(); 
         }
     }
-    mqtt.loop();
 }
 
 void connect_wifi() {
-  printf("WiFi MAC address is %s\n", WiFi.macAddress().c_str());
-  printf("Connecting to WiFi %s.\n", WIFI_SSID);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED) {
-    printf(".");
-    fflush(stdout);
-    delay(500);
-  }
-  printf("\nWiFi connected.\n");
+    Serial.printf("WiFi MAC address: %s\n", WiFi.macAddress().c_str());
+    Serial.printf("Connecting to WiFi: %s\n", WIFI_SSID);
+
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    
+    int attempt = 0;
+    while (WiFi.status() != WL_CONNECTED) {
+        Serial.print(".");
+        delay(500);
+        attempt++;
+        if (attempt > 20) {  
+            Serial.println("\nWiFi connection failed! Restarting...");
+            ESP.restart();
+        }
+    }
+    Serial.println("\nWiFi connected.");
 }
 
 void connect_mqtt() {
-  printf("Connecting to MQTT broker at %s.\n", MQTT_BROKER);
-  if (!mqtt.connect("", MQTT_USER, MQTT_PASS)) {
-    printf("Failed to connect to MQTT broker.\n");
-    for (;;) {} 
-  }
-  mqtt.setCallback(mqtt_callback);
-  
-  mqtt.subscribe(TOPIC_KU_BUS);
-  printf("MQTT broker connected.\n");
+    Serial.printf("Connecting to MQTT broker at %s...\n", MQTT_BROKER);
+    
+    while (!mqtt.connected()) {
+        if (mqtt.connect("ESP32_Client", MQTT_USER, MQTT_PASS)) {
+            Serial.println("MQTT broker connected.");
+            mqtt.subscribe(TOPIC_KU_BUS);
+            mqtt.setCallback(mqtt_callback);
+        } else {
+            Serial.println("Failed to connect to MQTT broker. Retrying in 5s...");
+            delay(5000);
+        }
+    }
 }
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
-  if (strcmp(topic, TOPIC_KU_BUS) == 0) {
     char message[length + 1];
-    for (int i = 0; i < length; i++) {
-      message[i] = (char)payload[i];
-    }
+    memcpy(message, payload, length);
     message[length] = '\0';
-    String receivedMessage = String(message);
 
+    String receivedMessage = String(message);
     DEBUG("Received MQTT message on TOPIC_KU_BUS: " + receivedMessage);
 
     if (receivedMessage == "ON") {
@@ -101,5 +114,4 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     } else if (receivedMessage == "OFF") {
         digitalWrite(LED_BUILTIN, LOW);
     }
-  }
 }
