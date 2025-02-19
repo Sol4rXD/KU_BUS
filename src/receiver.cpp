@@ -4,6 +4,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include "definitions.h"
+#include "smartdelay.h"
 
 #define USE_DEBUG
 
@@ -21,6 +22,8 @@ uint32_t last_publish;
 extern void mqtt_callback(char* topic, byte* payload, unsigned int length);
 extern void connect_wifi();
 extern void connect_mqtt();
+
+Millis timer(2000);
 
 void setup() {
     Serial.begin(115200);
@@ -59,7 +62,7 @@ void loop() {
         }
         DEBUG("Received LoRa data: " + loraData);
 
-        if (mqtt.connected()) {
+        if (mqtt.connected() && timer) {
             mqtt.publish(TOPIC_KU_BUS, loraData.c_str()); 
             DEBUG("Published to MQTT: " + loraData);
         }

@@ -27,7 +27,7 @@ Millis timer(1000);
 
 void setup() {
     Serial.begin(115200);
-    GPS_SERIAL.begin(GPS_SERIAL);
+    GPS_SERIAL.begin(GPS_BAUDRATE);
 
     if(!LoRa.begin(433E6)) {
         while(1);
@@ -37,10 +37,11 @@ void setup() {
 
 void loop() {
     get_gps();
-    if(timer) {
-        packet = "";
-        combine_packet(id, lat, lon, speed);
-        send_packet(packet);
+    if(lat != 0 && lon != 0) {
+        if(timer) {
+            combine_packet(id, lat, lon, speed);
+            send_packet(packet);
+        }
     }
 }
 
@@ -58,6 +59,7 @@ void get_gps() {
 }
 
 void combine_packet(int id, float lat, float lon, double speed) {
+    packet = "";
     packet += String((int)id) + ","
            += String((float)lat, 6) + ","
            += String((float)lon, 6) + ","
