@@ -10,7 +10,6 @@
 float lat, lon = 0;
 double alt, speed = 0;
 
-// uint16_t counter = 0;
 uint16_t sat = 0;
 
 SoftwareSerial GPS_SERIAL(18,17);
@@ -38,9 +37,16 @@ void setup() {
 void loop() {
     get_gps();
     if(lat != 0 && lon != 0) {
+        static bool calibratedPrinted = false; // Flag to track printing
+
+        if (!calibratedPrinted) {
+        Serial.println("Calibrated!");
+        calibratedPrinted = true; // Set the flag to true
+        }
         if(timer) {
             combine_packet(id, lat, lon, speed);
             send_packet(packet);
+            Serial.println("Packet send! :" + packet);
         }
     }
 }
