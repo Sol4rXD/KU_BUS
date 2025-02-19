@@ -37,11 +37,11 @@ void setup() {
 void loop() {
     get_gps();
     if(lat != 0 && lon != 0) {
-        static bool calibratedPrinted = false; // Flag to track printing
+        static bool calibratedPrinted = false; 
 
         if (!calibratedPrinted) {
-        Serial.println("Calibrated!");
-        calibratedPrinted = true; // Set the flag to true
+            Serial.println("Calibrated!");
+            calibratedPrinted = true; 
         }
         if(timer) {
             combine_packet(id, lat, lon, speed);
