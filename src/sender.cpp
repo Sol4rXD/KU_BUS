@@ -8,6 +8,7 @@
 #include "smartdelay.h"
 
 float lat, lon = 0;
+float prev_lat, prev_lon = 0;
 double alt, speed = 0;
 
 uint16_t sat = 0;
@@ -43,10 +44,12 @@ void loop() {
             Serial.println("Calibrated!");
             calibratedPrinted = true; 
         }
-        if(timer) {
+        if(timer && lat != prev_lat && lon != prev_lon) {
             combine_packet(id, lat, lon, speed);
             send_packet(packet);
             Serial.println("Packet send! :" + packet);
+            prev_lat = lat;
+            prev_lon = lon;
         }
     }
 }
