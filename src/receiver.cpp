@@ -35,6 +35,10 @@ void setup() {
         delay(5000);
         ESP.restart();
     }
+    LoRa.setSpreadingFactor(12);
+    LoRa.setCodingRate4(8);
+    LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);
+
     Serial.println("starting Lora");
 
     connect_wifi();
@@ -52,18 +56,13 @@ void loop() {
 
     int packetSize = LoRa.parsePacket();
     if (packetSize) {
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(300);
-        digitalWrite(LED_BUILTIN, LOW);
-        delay(300);
-
         String loraData = ""; 
         while (LoRa.available()) {
             loraData += (char)LoRa.read(); 
         }
         DEBUG("Received LoRa data: " + loraData);
 
-        if (mqtt.connected() && timer) {
+        if (mqtt.connected()) {
             mqtt.publish(TOPIC_KU_BUS, loraData.c_str()); 
             DEBUG("Published to MQTT: " + loraData);
         }

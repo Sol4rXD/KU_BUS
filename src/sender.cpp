@@ -9,9 +9,11 @@
 
 float lat, lon = 0;
 float prev_lat, prev_lon = 0;
+
 double alt, speed = 0;
 
 uint16_t sat = 0;
+uint16_t counter = 1;
 
 SoftwareSerial GPS_SERIAL(17, 18);
 
@@ -36,29 +38,41 @@ void setup() {
         delay(5000);
         ESP.restart();
     }
+    LoRa.setSpreadingFactor(12);
+    LoRa.setCodingRate4(8);
+    LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);
+
     Serial.println("Starting Lora");
 }
 
 void loop() {
     get_gps();
-    if(lat != 0 && lon != 0) {
-        static bool calibratedPrinted = false; 
 
-        if (!calibratedPrinted) {
-            Serial.println("Calibrated!");
-            calibratedPrinted = true; 
-        }
-        if(timer && lat != prev_lat && lon != prev_lon) {
-            combine_packet(id, lat, lon, speed);
-            send_packet(packet);
-            Serial.println("Packet send! :" + packet);
-            prev_lat = lat;
-            prev_lon = lon;
-        }
+    // Test
+    if(timer) {
+        combine_packet(counter, lat, lon, speed);
+        send_packet(packet);
+        Serial.println(packet);
+        counter++;
     }
-    else if(timer_5) {
-        Serial.println("Calibrating...");
-    }
+    // if(lat != 0 && lon != 0) {
+    //     static bool calibratedPrinted = false; 
+
+    //     if (!calibratedPrinted) {
+    //         Serial.println("Calibrated!");
+    //         calibratedPrinted = true; 
+    //     }
+    //     if(timer && lat != prev_lat && lon != prev_lon) {
+    //         combine_packet(id, lat, lon, speed);
+    //         send_packet(packet);
+    //         Serial.println("Packet send! :" + packet);
+    //         prev_lat = lat;
+    //         prev_lon = lon;
+    //     }
+    // }
+    // else if(timer_5) {
+    //     Serial.println("Calibrating...");
+    // }
 }
 
 void get_gps() {
@@ -70,6 +84,7 @@ void get_gps() {
             alt = gps.altitude.meters();
             sat = gps.satellites.value();
             speed = gps.speed.kmph();
+
             String x = (String)lat + "," + (String)lon + "," + (String)sat;
             Serial.println(x);
         }
@@ -89,4 +104,3 @@ void send_packet(String packet){
     LoRa.println(packet);
     LoRa.endPacket();
 }
-
