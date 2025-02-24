@@ -27,6 +27,7 @@ String packet;
 
 Millis timer(1000);
 Millis timer_1(1000);
+Millis timer_3(3000);
 Millis timer_5(5000);
 
 void setup() {
@@ -41,6 +42,7 @@ void setup() {
     LoRa.setSpreadingFactor(12);
     LoRa.setCodingRate4(8);
     LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);
+    LoRa.setSignalBandwidth(125E3);
 
     Serial.println("Starting Lora");
 }
@@ -49,30 +51,31 @@ void loop() {
     get_gps();
 
     // Test
-    if(timer) {
-        combine_packet(counter, lat, lon, speed);
-        send_packet(packet);
-        Serial.println(packet);
-        counter++;
-    }
-    // if(lat != 0 && lon != 0) {
-    //     static bool calibratedPrinted = false; 
+    // if(timer) {
+    //     combine_packet(counter, lat, lon, speed);
+    //     send_packet(packet);
+    //     Serial.println(packet);
+    //     counter++;
+    // }
 
-    //     if (!calibratedPrinted) {
-    //         Serial.println("Calibrated!");
-    //         calibratedPrinted = true; 
-    //     }
-    //     if(timer && lat != prev_lat && lon != prev_lon) {
-    //         combine_packet(id, lat, lon, speed);
-    //         send_packet(packet);
-    //         Serial.println("Packet send! :" + packet);
-    //         prev_lat = lat;
-    //         prev_lon = lon;
-    //     }
-    // }
-    // else if(timer_5) {
-    //     Serial.println("Calibrating...");
-    // }
+    if(lat != 0 && lon != 0) {
+        static bool calibratedPrinted = false; 
+
+        if (!calibratedPrinted) {
+            Serial.println("Calibrated!");
+            calibratedPrinted = true; 
+        }
+        if(timer_3 && lat != prev_lat && lon != prev_lon) {
+            combine_packet(id, lat, lon, speed);
+            send_packet(packet);
+            Serial.println("Packet send! :" + packet);
+            prev_lat = lat;
+            prev_lon = lon;
+        }
+    }
+    else if(timer_5) {
+        Serial.println("Calibrating...");
+    }
 }
 
 void get_gps() {
@@ -84,9 +87,6 @@ void get_gps() {
             alt = gps.altitude.meters();
             sat = gps.satellites.value();
             speed = gps.speed.kmph();
-
-            String x = (String)lat + "," + (String)lon + "," + (String)sat;
-            Serial.println(x);
         }
     }
 }
