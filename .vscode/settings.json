@@ -60,6 +60,12 @@
   "files.associations": {
     "*.cpp": "cpp",
     "string": "cpp",
-    "sstream": "cpp"
+    "sstream": "cpp",
+    "array": "cpp",
+    "deque": "cpp",
+    "unordered_map": "cpp",
+    "vector": "cpp",
+    "string_view": "cpp",
+    "initializer_list": "cpp"
   }
 }

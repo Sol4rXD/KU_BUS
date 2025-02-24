@@ -35,6 +35,7 @@ void setup() {
         delay(5000);
         ESP.restart();
     }
+    Serial.println("starting Lora");
 
     connect_wifi();
     mqtt.setServer(MQTT_BROKER, 1883);

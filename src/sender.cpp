@@ -13,7 +13,7 @@ double alt, speed = 0;
 
 uint16_t sat = 0;
 
-SoftwareSerial GPS_SERIAL(18,17);
+SoftwareSerial GPS_SERIAL(17, 18);
 
 TinyGPSPlus gps;
 
@@ -24,13 +24,17 @@ extern void send_packet(String packet);
 String packet;
 
 Millis timer(1000);
+Millis timer_1(1000);
+Millis timer_5(5000);
 
 void setup() {
     Serial.begin(115200);
     GPS_SERIAL.begin(GPS_BAUDRATE);
 
-    if(!LoRa.begin(433E6)) {
-        while(1);
+    if (!LoRa.begin(433E6)) {
+        Serial.println("Starting LoRa failed! Restarting...");
+        delay(5000);
+        ESP.restart();
     }
     Serial.println("Starting Lora");
 }
@@ -52,6 +56,9 @@ void loop() {
             prev_lon = lon;
         }
     }
+    else if(timer_5) {
+        Serial.println("Calibrating...");
+    }
 }
 
 void get_gps() {
@@ -63,6 +70,8 @@ void get_gps() {
             alt = gps.altitude.meters();
             sat = gps.satellites.value();
             speed = gps.speed.kmph();
+            String x = (String)lat + "," + (String)lon + "," + (String)sat;
+            Serial.println(x);
         }
     }
 }
@@ -72,7 +81,7 @@ void combine_packet(int id, float lat, float lon, double speed) {
     packet += String((int)id) + ","
            += String((float)lat, 6) + ","
            += String((float)lon, 6) + ","
-           += String((double)speed) + ",";
+           += String((double)speed);
 }
 
 void send_packet(String packet){
