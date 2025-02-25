@@ -39,7 +39,8 @@ void setup() {
     LoRa.setCodingRate4(8);
     LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);
     LoRa.setSignalBandwidth(125E3);
-    
+    LoRa.enableCrc();  
+
     Serial.println("starting Lora");
 
     connect_wifi();
