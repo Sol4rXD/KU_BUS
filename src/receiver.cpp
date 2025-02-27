@@ -6,6 +6,7 @@
 #include "definitions.h"
 #include "smartdelay.h"
 
+//DEBUG
 #define USE_DEBUG
 
 #ifdef USE_DEBUG
