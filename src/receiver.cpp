@@ -63,7 +63,7 @@ void loop() {
         while (LoRa.available()) {
             loraData += (char)LoRa.read(); 
         }
-        DEBUG("Received LoRa data: " + loraData);
+        DEBUG("Received LoRa data: " + loraData + " Rssi: " + LoRa.packetRssi());
 
         if (mqtt.connected()) {
             mqtt.publish(TOPIC_KU_BUS, loraData.c_str()); 

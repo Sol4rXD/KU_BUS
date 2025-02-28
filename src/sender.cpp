@@ -38,11 +38,11 @@ void setup() {
         delay(5000);
         ESP.restart();
     }
-    LoRa.setSpreadingFactor(12);
-    LoRa.setCodingRate4(8);
-    LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);
-    LoRa.setSignalBandwidth(125E3);
-    LoRa.enableCrc();  
+     LoRa.setSpreadingFactor(12);
+     LoRa.setCodingRate4(8);
+     LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);
+     LoRa.setSignalBandwidth(125E3);
+     LoRa.enableCrc();
 
     Serial.println("Starting Lora");
 }
@@ -51,31 +51,31 @@ void loop() {
     get_gps();
 
     // Test
-//    if(timer) {
-//        combine_packet(counter, lat, lon, speed);
-//        send_packet(packet);
-//        Serial.println(packet);
-//        counter++;
-//    }
+   if(timer) {
+       combine_packet(counter, lat, lon, speed);
+       send_packet(packet);
+       Serial.println(packet);
+       counter++;
+   }
 
-     if(lat != 0 && lon != 0) {
-         static bool calibratedPrinted = false;
+    //  if(lat != 0 && lon != 0) {
+    //      static bool calibratedPrinted = false;
 
-         if (!calibratedPrinted) {
-             Serial.println("Calibrated!");
-             calibratedPrinted = true;
-         }
-         if(timer_2 && lat != prev_lat && lon != prev_lon) {
-             combine_packet(id, lat, lon, speed);
-             send_packet(packet);
-             Serial.println("Packet send! :" + packet);
-             prev_lat = lat;
-             prev_lon = lon;
-         }
-     }
-     else if(timer_5) {
-         Serial.println("Calibrating...");
-     }
+    //      if (!calibratedPrinted) {
+    //          Serial.println("Calibrated!");
+    //          calibratedPrinted = true;
+    //      }
+    //      if(timer_2 && lat != prev_lat && lon != prev_lon) {
+    //          combine_packet(id, lat, lon, speed);
+    //          send_packet(packet);
+    //          Serial.println("Packet send! :" + packet);
+    //          prev_lat = lat;
+    //          prev_lon = lon;
+    //      }
+    //  }
+    //  else if(timer_5) {
+    //      Serial.println("Calibrating...");
+    //  }   
 }
 
 void get_gps() {
@@ -102,5 +102,6 @@ void combine_packet(int x, float y, float z, double a) {
 void send_packet(String payload){
     LoRa.beginPacket();
     LoRa.println(payload);
+    Serial.println("Send !!!");
     LoRa.endPacket();
 }
