@@ -79,9 +79,13 @@ void loop() {
 }
 
 void get_gps() {
-    while (GPS_SERIAL.available() > 0) {
+    while(GPS_SERIAL.available() > 0) {
         gps.encode(GPS_SERIAL.read());
-        if (gps.location.isUpdated()) {
+        Serial.write(GPS_SERIAL.read());
+        if(gps.location.isUpdated()){
+//            Serial.write((GPS_SERIAL.read()));
+            Serial.println(("GPS UPDATED"));
+            Serial.println(gps.location.lat(),gps.location.lng());
             lat = gps.location.lat();
             lon = gps.location.lng();
             alt = gps.altitude.meters();
