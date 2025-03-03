@@ -28,8 +28,6 @@ Millis timer(2000);
 
 void setup() {
     Serial.begin(115200);
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW);
 
     if (!LoRa.begin(433E6)) {
         Serial.println("Starting LoRa failed! Restarting...");
@@ -48,6 +46,8 @@ void setup() {
     mqtt.setServer(MQTT_BROKER, 1883);
     connect_mqtt();
     last_publish = millis();
+
+    pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
@@ -61,6 +61,9 @@ void loop() {
     if (packetSize) {
         String loraData = ""; 
         while (LoRa.available()) {
+            digitalWrite(LED_BUILTIN, HIGH);
+            digitalWrite(LED_BUILTIN, LOW);
+
             loraData += (char)LoRa.read(); 
         }
         DEBUG("Received LoRa data: " + loraData + " Rssi: " + LoRa.packetRssi());

@@ -49,33 +49,6 @@ void setup() {
 
 void loop() {
     get_gps();
-
-    // Test
-   if(timer) {
-       combine_packet(counter, lat, lon, speed);
-       send_packet(packet);
-       Serial.println(packet);
-       counter++;
-   }
-
-    //  if(lat != 0 && lon != 0) {
-    //      static bool calibratedPrinted = false;
-
-    //      if (!calibratedPrinted) {
-    //          Serial.println("Calibrated!");
-    //          calibratedPrinted = true;
-    //      }
-    //      if(timer_2 && lat != prev_lat && lon != prev_lon) {
-    //          combine_packet(id, lat, lon, speed);
-    //          send_packet(packet);
-    //          Serial.println("Packet send! :" + packet);
-    //          prev_lat = lat;
-    //          prev_lon = lon;
-    //      }
-    //  }
-    //  else if(timer_5) {
-    //      Serial.println("Calibrating...");
-    //  }   
 }
 
 void get_gps() {
@@ -83,7 +56,6 @@ void get_gps() {
         gps.encode(GPS_SERIAL.read());
         Serial.write(GPS_SERIAL.read());
         if(gps.location.isUpdated()){
-//            Serial.write((GPS_SERIAL.read()));
             Serial.println(("GPS UPDATED"));
             Serial.println(gps.location.lat(),gps.location.lng());
             lat = gps.location.lat();
@@ -91,6 +63,12 @@ void get_gps() {
             alt = gps.altitude.meters();
             sat = gps.satellites.value();
             speed = gps.speed.kmph();
+            if(timer) {
+                combine_packet(counter, lat, lon, speed);
+                send_packet(packet);
+                Serial.println(packet);
+                counter++;
+            }
         }
     }
 }
