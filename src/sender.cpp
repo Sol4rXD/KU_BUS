@@ -25,9 +25,6 @@ extern void send_packet(String payload);
 String packet;
 
 Millis timer(1000);
-Millis timer_1(1000);
-Millis timer_2(2000);
-Millis timer_5(5000);
 
 void setup() {
     Serial.begin(115200);
@@ -54,7 +51,7 @@ void loop() {
 void get_gps() {
     while(GPS_SERIAL.available() > 0) {
         gps.encode(GPS_SERIAL.read());
-        Serial.write(GPS_SERIAL.read());
+//        Serial.write(GPS_SERIAL.read());
         if(gps.location.isUpdated()){
             Serial.println(("GPS UPDATED"));
             Serial.println(gps.location.lat(),gps.location.lng());
